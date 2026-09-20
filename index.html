@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Islami Terpadu</title>
+    <link href="https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root { --primary-color: #046b46; --bg-color: #f4f7f6; --card-bg: #ffffff; --text-main: #333333; --sunnah-color: #ff9800; }
+        body { font-family: 'Segoe UI', sans-serif; background-color: var(--bg-color); color: var(--text-main); margin: 0; padding: 0; width: 600px; max-height: 600px; overflow-y: auto; }
+        header { background-color: var(--primary-color); color: white; text-align: center; padding: 1.5rem; }
+        header p { font-size: 0.9rem; margin-top: 5px; }
+        nav { display: flex; justify-content: center; background-color: #034f34; flex-wrap: wrap; }
+        nav button { background: none; border: none; color: white; padding: 1rem; cursor: pointer; font-size: 0.9rem; transition: background 0.3s; flex-grow: 1; }
+        nav button:hover, nav button.active { background-color: #058c5c; }
+        main { padding: 1.5rem; }
+        .tab-content { display: none; padding-bottom: 20px; }
+        .tab-content.active { display: block; }
+        
+        .form-group { margin-bottom: 1.2rem; }
+        label { display: block; margin-bottom: 0.5rem; font-weight: bold; font-size: 0.9rem; }
+        input { width: 100%; padding: 0.8rem; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        button.btn-action { background-color: var(--primary-color); color: white; border: none; padding: 1rem; width: 100%; font-size: 1rem; border-radius: 4px; cursor: pointer; margin-top: 10px; }
+        button.btn-action:hover { background-color: #058c5c; }
+        button.btn-secondary { background-color: #555; margin-bottom: 10px; }
+        
+        .card { background: var(--card-bg); padding: 1.5rem; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 1.5rem; }
+        .hasil-box { margin-top: 1.5rem; padding: 1rem; background-color: #e8f5e9; border-left: 5px solid var(--primary-color); border-radius: 4px; display: none; }
+        
+        /* Modul Adzan Baru */
+        .card-live { text-align: center; background: linear-gradient(135deg, var(--primary-color), #034f34); color: white; padding: 20px; border-radius: 8px; margin-bottom: 15px;}
+        .card-live #lokasi-text { font-size: 0.9rem; color: #a5d6a7; margin-bottom: 10px; font-weight: bold; }
+        .card-live #live-clock { font-size: 3rem; font-weight: bold; letter-spacing: 2px; line-height: 1; margin-bottom: 5px; font-family: monospace; }
+        .card-live #live-date { font-size: 1rem; margin-bottom: 15px; color: #e8f5e9; }
+        .card-live .next-box { background: rgba(255,255,255,0.15); padding: 15px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); }
+        
+        .jadwal-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(85px, 1fr)); gap: 10px; margin-top: 15px; }
+        .jadwal-item { background: #f9f9f9; padding: 10px; text-align: center; border-radius: 8px; border: 1px solid #eee; }
+        .jadwal-item.next-waktu { background: #e8f5e9; border-color: #8bc34a; box-shadow: 0 0 8px rgba(139, 195, 74, 0.4); }
+        .jadwal-item span { display: block; font-size: 1.1rem; margin-top: 5px; color: var(--text-main); font-weight:bold;}
+        .jadwal-item small { color: #777; font-size: 0.8rem; }
+        
+        /* Quran */
+        .surah-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 10px; }
+        .surah-btn { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; text-align: left; border-radius: 5px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; }
+        .surah-btn:hover { background: #e9ecef; border-color: var(--primary-color); }
+        .surah-arab { font-family: 'Scheherazade New', serif; font-size: 1.3rem; font-weight: bold; color: var(--primary-color); }
+        .ayat-container { display: none; margin-top: 10px; }
+        .ayat-item { padding: 15px 0; border-bottom: 1px solid #eee; text-align: right; }
+        .ayat-arab { font-family: 'Scheherazade New', serif; font-size: 2rem; line-height: 2; color: #000; } 
+        .ayat-arti { text-align: left; font-size: 0.9rem; color: #555; margin-top: 10px; }
+        
+        /* UI Kalender Hijriah */
+        .info-hari-ini { text-align: center; }
+        .info-hari-ini h3 { font-size: 1.2rem; margin: 0 0 5px 0; color: #555; }
+        .info-hari-ini h2 { font-size: 1.6rem; margin: 0 0 10px 0; color: var(--primary-color); }
+        .badge-puasa { display: inline-block; background: var(--sunnah-color); color: white; padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 0.9rem; margin-top: 10px;}
+        .grid-kalender-header { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: bold; margin-bottom: 10px; color: #555; font-size: 0.85rem;}
+        .grid-kalender-body { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+        .cell-hari { background: #f9f9f9; border: 1px solid #eee; border-radius: 6px; padding: 5px; text-align: center; min-height: 55px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;}
+        .cell-hari.hari-ini { background: #e8f5e9; border-color: var(--primary-color); box-shadow: 0 0 5px rgba(4, 107, 70, 0.3); }
+        .cell-hari.ada-puasa { background: #fff3e0; border-color: var(--sunnah-color); }
+        .tgl-masehi { font-size: 1rem; font-weight: bold; color: var(--text-main); line-height: 1; margin-bottom: 2px;}
+        .tgl-hijri { font-size: 0.75rem; color: #777; line-height: 1; margin-bottom: 4px;}
+        .badge-puasa-mini { background: var(--sunnah-color); color: white; font-size: 0.6rem; padding: 2px 4px; border-radius: 3px; font-weight: bold; line-height: 1;}
+        .peristiwa-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid #eee; }
+        .peristiwa-item:last-child { border-bottom: none; }
+        .loading { text-align: center; padding: 20px; font-style: italic; color: #888; display: none;}
+    </style>
+</head>
+<body>
+    <header>
+        <h1 style="margin: 0; font-size: 1.5rem;">Aplikasi Islami</h1>
+        <p>Waktu Shalat, Al-Qur'an, Kalender & Zakat</p>
+    </header>
+
+    <nav>
+        <button class="tab-btn active" data-tab="Adzan">Adzan</button>
+        <button class="tab-btn" data-tab="Quran">Al-Qur'an</button>
+        <button class="tab-btn" data-tab="Kalender">Hijriah</button>
+        <button class="tab-btn" data-tab="Zakat">Zakat</button>
+    </nav>
+
+    <main>
+        <!-- Modul Adzan Baru (3 Cards) -->
+        <div id="Adzan" class="tab-content active">
+            <!-- Pengecekan Lokasi Tersembunyi di Atas -->
+            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
+                <input type="text" id="inputKota" placeholder="Ketik nama kota..." style="flex: 2; padding: 8px;">
+                <button class="btn-action" id="btn-kota" style="flex: 1; margin-top: 0; padding: 8px;">Cari</button>
+                <button class="btn-action btn-secondary" id="btn-lokasi" style="flex: 1; margin-top: 0; padding: 8px;" title="GPS">📍 GPS</button>
+            </div>
+            
+            <div id="loading-adzan" class="loading">Melacak lokasi & memuat jadwal SIHAT Kemenag...</div>
+            
+            <div id="hasil-adzan" style="display: none;">
+                <!-- Card 1: Live Time & Next Prayer -->
+                <div class="card-live">
+                    <div id="lokasi-text">📍 Lokasi Belum Ditetapkan</div>
+                    <div id="live-clock">00:00:00</div>
+                    <div id="live-date">-</div>
+                    <div class="next-box">
+                        <div style="font-size: 0.9rem; margin-bottom: 5px;">Menuju Waktu <strong id="next-prayer-name" style="color: #ffeb3b; font-size: 1.1rem;">-</strong> (<span id="next-prayer-time">-</span>)</div>
+                        <div id="next-prayer-countdown" style="font-size: 1.5rem; font-weight: bold; font-family: monospace;">-00:00:00</div>
+                    </div>
+                </div>
+
+                <!-- Card 2: Waktu Wajib -->
+                <div class="card" style="padding: 1.2rem;">
+                    <h3 style="margin-top:0; border-bottom: 2px solid var(--primary-color); padding-bottom:5px; font-size: 1.1rem;">Jadwal Shalat Wajib</h3>
+                    <div class="jadwal-grid" id="grid-wajib"></div>
+                </div>
+
+                <!-- Card 3: Waktu Sunnah -->
+                <div class="card" style="padding: 1.2rem;">
+                    <h3 style="margin-top:0; border-bottom: 2px solid var(--sunnah-color); padding-bottom:5px; font-size: 1.1rem;">Waktu Sunnah & Larangan</h3>
+                    <div class="jadwal-grid" id="grid-sunnah"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modul Quran -->
+        <div id="Quran" class="tab-content">
+            <div class="card">
+                <h2 style="margin-top:0;">Baca Al-Qur'an</h2>
+                <div id="loading-quran" class="loading">Memuat daftar Surah...</div>
+                <div id="quran-home">
+                    <input type="text" id="searchSurah" placeholder="Cari Surah..." style="margin-bottom: 15px;">
+                    <div class="surah-list" id="daftar-surah"></div>
+                </div>
+                <div id="quran-baca" class="ayat-container">
+                    <button class="btn-action btn-secondary" id="btn-back-quran">⬅ Kembali</button>
+                    <h3 id="judul-surah" style="text-align: center; color: var(--primary-color);"></h3>
+                    <div id="loading-ayat" class="loading">Memuat ayat...</div>
+                    <div id="daftar-ayat"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modul Kalender -->
+        <div id="Kalender" class="tab-content">
+            <div class="card info-hari-ini">
+                <h3 id="hari-ini-masehi">Memuat...</h3>
+                <h2 id="hari-ini-hijriah">Memuat...</h2>
+                <div id="hari-ini-puasa"></div>
+            </div>
+            <div class="card">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 15px;">
+                    <h3 style="margin:0;">Kalender Hijriah</h3>
+                    <input type="month" id="inputBulan" style="width:auto; padding:5px;">
+                </div>
+                <div class="grid-kalender-header">
+                    <div>Sen</div><div>Sel</div><div>Rab</div><div>Kam</div><div>Jum</div><div>Sab</div><div>Min</div>
+                </div>
+                <div id="grid-bulan" class="grid-kalender-body"></div>
+            </div>
+            <div class="card">
+                <h3 style="margin-top:0; border-bottom: 2px solid var(--primary-color); padding-bottom:10px;">Peristiwa Islam Mendatang</h3>
+                <div id="list-peristiwa">
+                    <div class="loading" style="display:block;">Menghitung jadwal...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modul Zakat -->
+        <div id="Zakat" class="tab-content">
+            <div class="card">
+                <h2 style="margin-top:0;">Kalkulator Zakat Maal</h2>
+                <div class="form-group"><label>Harga Emas Saat Ini (Rp):</label><input type="number" id="hargaEmas" value="1200000"></div>
+                <div class="form-group"><label>Tabungan & Uang Tunai (Rp):</label><input type="number" id="tabungan"></div>
+                <div class="form-group"><label>Nilai Emas/Perak (Rp):</label><input type="number" id="asetEmas"></div>
+                <div class="form-group"><label>Nilai Aset Dagang (Rp):</label><input type="number" id="asetDagang"></div>
+                <div class="form-group"><label>Hutang Jatuh Tempo (Rp):</label><input type="number" id="hutang"></div>
+                <button class="btn-action" id="btn-hitung-zakat">Hitung Zakat</button>
+                <div id="hasil-zakat" class="hasil-box">
+                    <h3 id="status-nisab" style="font-size: 1.1rem; margin-top:0;"></h3>
+                    <p style="font-size: 0.9rem; margin-bottom: 5px;">Total Harta: <strong id="total-harta"></strong></p>
+                    <p style="font-size: 0.9rem; margin-top: 0;">Nisab (85g): <strong id="nilai-nisab"></strong></p>
+                    <h2 id="wajib-zakat" style="color: var(--primary-color); font-size: 1.3rem;"></h2>
+                </div>
+            </div>
+        </div>
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

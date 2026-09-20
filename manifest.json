@@ -1,0 +1,17 @@
+{
+  "manifest_version": 3,
+  "name": "Aplikasi Islami Terpadu",
+  "version": "1.0",
+  "description": "Pengingat Waktu Adzan, Kalender Hijriah, Al-Qur'an, dan Kalkulator Zakat dalam satu klik.",
+  "action": {
+    "default_popup": "index.html",
+    "default_title": "Buka Aplikasi Islami"
+  },
+  "permissions": [
+    "geolocation"
+  ],
+  "host_permissions": [
+    "https://api.aladhan.com/*",
+    "https://api.alquran.cloud/*"
+  ]
+}
